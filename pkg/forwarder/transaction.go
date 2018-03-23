@@ -38,6 +38,13 @@ const (
 	apiKeyReplacement = "api_key=*************************$1"
 )
 
+// Transaction represents the task to process for a Worker.
+type Transaction interface {
+	Process(ctx context.Context, client *http.Client) error
+	GetCreatedAt() time.Time
+	GetTarget() string
+}
+
 var apiKeyRegExp = regexp.MustCompile("api_key=*\\w+(\\w{5})")
 
 // NewHTTPTransaction returns a new HTTPTransaction.
