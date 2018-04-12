@@ -9,6 +9,7 @@ from . import agent, benchmarks, docker, dogstatsd, pylauncher, cluster_agent, s
 from .go import fmt, lint, vet, cyclo, ineffassign, misspell, deps, reset
 from .test import test, integration_tests, version, lint_releasenote, lint_filenames
 from .build_tags import audit_tag_impact
+from .release import update_changelog
 
 # the root namespace
 ns = Collection()
@@ -28,6 +29,7 @@ ns.add_task(version)
 ns.add_task(lint_releasenote)
 ns.add_task(lint_filenames)
 ns.add_task(audit_tag_impact)
+ns.add_task(update_changelog)
 
 # add namespaced tasks to the root
 ns.add_collection(agent)
