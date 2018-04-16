@@ -17,6 +17,7 @@ type Origin struct {
 	LogSource  *config.LogSource
 	Offset     int64
 	Timestamp  string
+	Cursor     string
 	tags       []string
 }
 

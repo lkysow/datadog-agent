@@ -27,6 +27,7 @@ const defaultTTL = 23 * time.Hour
 type RegistryEntry struct {
 	Timestamp   string
 	Offset      int64
+	Cursor      string
 	LastUpdated time.Time
 }
 
@@ -87,7 +88,7 @@ func (a *Auditor) run() {
 				return
 			}
 			// update the registry with new entry
-			a.updateRegistry(msg.GetOrigin().Identifier, msg.GetOrigin().Offset, msg.GetOrigin().Timestamp)
+			a.updateRegistry(msg.GetOrigin().Identifier, msg.GetOrigin().Offset, msg.GetOrigin().Timestamp, msg.GetOrigin().Cursor)
 		case <-cleanUpTicker.C:
 			// remove expired offsets from registry
 			a.cleanupRegistry()
@@ -129,7 +130,7 @@ func (a *Auditor) cleanupRegistry() {
 }
 
 // updateRegistry updates the registry entry matching identifier with new the offset and timestamp
-func (a *Auditor) updateRegistry(identifier string, offset int64, timestamp string) {
+func (a *Auditor) updateRegistry(identifier string, offset int64, timestamp string, cursor string) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	if identifier == "" {
@@ -142,6 +143,7 @@ func (a *Auditor) updateRegistry(identifier string, offset int64, timestamp stri
 		LastUpdated: time.Now().UTC(),
 		Offset:      offset,
 		Timestamp:   timestamp,
+		Cursor:      cursor,
 	}
 }
 
@@ -187,6 +189,16 @@ func (a *Auditor) GetLastCommittedTimestamp(identifier string) string {
 	return entry.Timestamp
 }
 
+// GetLastCommittedCursor returns the last committed cursor for a given identifier
+func (a *Auditor) GetLastCommittedCursor(identifier string) string {
+	r := a.readOnlyRegistryCopy()
+	entry, ok := r[identifier]
+	if !ok {
+		return ""
+	}
+	return entry.Cursor
+}
+
 // JSONRegistry represents the registry that will be written on disk
 type JSONRegistry struct {
 	Version  int
@@ -227,6 +239,7 @@ type registryEntryV0 struct {
 	Path      string
 	Timestamp time.Time
 	Offset    int64
+	Cursor    string
 }
 
 type jsonRegistryV0 struct {
@@ -246,6 +259,7 @@ func (a *Auditor) unmarshalRegistryV0(b []byte) (map[string]*RegistryEntry, erro
 		newEntry.Offset = entry.Offset
 		newEntry.LastUpdated = entry.Timestamp
 		newEntry.Timestamp = ""
+		newEntry.Cursor = ""
 		// from v0 to v1, we also prefixed path with file:
 		newPath := fmt.Sprintf("file:%s", path)
 		registry[newPath] = &newEntry
