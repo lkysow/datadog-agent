@@ -49,7 +49,7 @@ func (c *KubeMetadataCollector) getTagInfos(pods []*kubelet.Pod) []*TagInfo {
 		if !config.Datadog.GetBool("cluster_agent") {
 			metadataNames, err = apiserver.GetPodMetadataNames(po.Spec.NodeName, po.Metadata.Name)
 			if err != nil {
-				log.Errorf("Could not fetch tags for pod %s from the Cluster Agent: %s", po.Metadata.Name, err.Error())
+				log.Errorf("Could not fetch tags for pod %s: %s", po.Metadata.Name, err.Error())
 				continue
 			}
 		} else {
@@ -59,7 +59,6 @@ func (c *KubeMetadataCollector) getTagInfos(pods []*kubelet.Pod) []*TagInfo {
 			}
 		}
 		for _, tagDCA := range metadataNames {
-			// for service in metadataName.[services]
 			log.Tracef("Tagging %s with %s", po.Metadata.Name, tagDCA)
 			tag = strings.Split(tagDCA, ":")
 			if len(tag) != 2 {
