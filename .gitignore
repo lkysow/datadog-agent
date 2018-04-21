@@ -35,3 +35,8 @@ datadog-agent*_amd64.deb
 *.pem
 
 **/test/auth_token
+/test/e2e/scripts/local/argo
+/test/e2e/scripts/remote/instance-id.json
+/test/e2e/scripts/remote/specification.json
+/test/e2e/scripts/remote/spot-instance-request.json
+/test/e2e/scripts/remote/spot-request-id.json
